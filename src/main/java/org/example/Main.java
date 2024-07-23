@@ -1,11 +1,13 @@
 package org.example;
 
+import org.example.aws.service.DynamoDBService;
 import org.example.aws.service.S3Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -21,6 +23,14 @@ public class Main {
         // S3 upload and download
         String s3Key = s3Service.uploadFile(new FileInputStream("src/main/resources/test.txt"), 1024, "text/plain");
         System.out.println("Uploaded file to S3 with key: " + s3Key);
+
+        DynamoDBService dynamoDBService = new DynamoDBService(accessKey, secretKey, region, properties.getProperty("dynamodb.tableName"));
+
+        // DynamoDB put and get item
+        String key = "UUID-" + UUID.randomUUID().toString();
+        dynamoDBService.putItem(key, s3Key);
+        System.out.println("Retrieved item from DynamoDB: " + dynamoDBService.getItem(key));
+
     }
 
     private static Properties loadProperties() throws IOException {
