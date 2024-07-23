@@ -1,42 +1,44 @@
 package org.example.aws.service;
 
-
-
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 public class S3Service {
 
-    private final AmazonS3 s3Client;
+    private final S3Client s3Client;
     private final String BUCKET_NAME = "simpleitem";
 
-    public S3Service(String accessKey, String secretKey, Regions region) {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        this.s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(region)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+    public S3Service(String accessKey, String secretKey, String region) {
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
+        this.s3Client = S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
     }
 
     public String uploadFile(InputStream inputStream, long contentLength, String contentType) {
         String key = UUID.randomUUID().toString();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(contentLength);
-        metadata.setContentType(contentType);
-        s3Client.putObject(BUCKET_NAME, key, inputStream, metadata);
+        s3Client.putObject(PutObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(key)
+                .build(), RequestBody.fromInputStream(inputStream, contentLength));
         return key;
     }
 
-    public S3Object downloadFile(String key) {
-        return s3Client.getObject(BUCKET_NAME, key);
+    public void downloadFile(String key, String destinationPath) {
+        s3Client.getObject(GetObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(key)
+                .build(), Paths.get(destinationPath));
     }
 }
 

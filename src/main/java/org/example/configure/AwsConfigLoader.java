@@ -2,12 +2,11 @@ package org.example.configure;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import com.amazonaws.regions.Regions;
 
 public class AwsConfigLoader {
     private String accessKey;
     private String secretKey;
-    private Regions region;
+    private String region;
 
     public void loadAwsConfigurations(String environment) {
         Properties prop = new Properties();
@@ -17,7 +16,7 @@ public class AwsConfigLoader {
             prop.load(input);
             accessKey = prop.getProperty("aws.access.key");
             secretKey = prop.getProperty("aws.secret.key");
-            region = Regions.fromName(prop.getProperty("aws.region"));
+            region = prop.getProperty("aws.region");
         } catch (IOException ex) {
             System.err.println("Error loading AWS configuration for environment " + environment + ": " + ex.getMessage());
             return;

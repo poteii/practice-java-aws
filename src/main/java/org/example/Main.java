@@ -1,17 +1,12 @@
 package org.example;
 
-import com.amazonaws.regions.Regions;
 import org.example.aws.service.S3Service;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) throws IOException {
         // Initialize AWS services
@@ -20,7 +15,7 @@ public class Main {
 
         String accessKey = properties.getProperty("aws.accessKey");
         String secretKey = properties.getProperty("aws.secretKey");
-        Regions region = Regions.fromName(properties.getProperty("aws.region"));
+        String region = properties.getProperty("aws.region");
 
         S3Service s3Service = new S3Service(accessKey, secretKey, region);
         // S3 upload and download
