@@ -1,6 +1,8 @@
 package org.example;
 
+import org.example.aws.functions.BookPriceCalculatorUI;
 import org.example.aws.service.DynamoDBService;
+import org.example.aws.service.LambdaService;
 import org.example.aws.service.S3Service;
 
 import java.io.FileInputStream;
@@ -25,12 +27,19 @@ public class Main {
         System.out.println("Uploaded file to S3 with key: " + s3Key);
 
         DynamoDBService dynamoDBService = new DynamoDBService(accessKey, secretKey, region, properties.getProperty("dynamodb.tableName"));
-
         // DynamoDB put and get item
         String key = "UUID-" + UUID.randomUUID().toString();
         dynamoDBService.putItem(key, s3Key);
         System.out.println("Retrieved item from DynamoDB: " + dynamoDBService.getItem(key));
 
+        LambdaService lambdaService = new LambdaService(accessKey, secretKey, region);
+        // Invoke Lambda function
+//        String lambdaResponse = lambdaService.invokeFunction("your-lambda-function-name", "{\"key\":\"value\"}");
+//        System.out.println("Lambda function response: " + lambdaResponse);
+
+
+        // Start UI
+        BookPriceCalculatorUI.main(args);
     }
 
     private static Properties loadProperties() throws IOException {
