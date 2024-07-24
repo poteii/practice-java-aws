@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.aws.functions.BookPriceCalculatorUI;
+import org.example.aws.service.ApiGatewayService;
 import org.example.aws.service.DynamoDBService;
 import org.example.aws.service.LambdaService;
 import org.example.aws.service.S3Service;
@@ -12,6 +13,8 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class Main {
+
+
     public static void main(String[] args) throws IOException {
         // Initialize AWS services
         // Load properties
@@ -32,11 +35,17 @@ public class Main {
         dynamoDBService.putItem(key, s3Key);
         System.out.println("Retrieved item from DynamoDB: " + dynamoDBService.getItem(key));
 
-        LambdaService lambdaService = new LambdaService(accessKey, secretKey, region);
-        // Invoke Lambda function
-//        String lambdaResponse = lambdaService.invokeFunction("your-lambda-function-name", "{\"key\":\"value\"}");
-//        System.out.println("Lambda function response: " + lambdaResponse);
-
+        // Interact with API Gateway via Lambda
+        String apiGatewayEndpoint = properties.getProperty("api.gateway.endpoint");
+        ApiGatewayService apiGatewayService = new ApiGatewayService();
+        double price = 100.0;
+        String lambdaResponse = null;
+        try {
+            lambdaResponse = apiGatewayService.callApiGateway(apiGatewayEndpoint, price);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("API Gateway response: " + lambdaResponse);
 
         // Start UI
         BookPriceCalculatorUI.main(args);

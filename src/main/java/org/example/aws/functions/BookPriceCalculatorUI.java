@@ -75,8 +75,9 @@ public class BookPriceCalculatorUI {
                 String payload = "{\"price\": " + price + "}";
 
                 String response = lambdaService.invokeFunction(functionName, payload);
+
                 resultText.setText(response);
-            }// {"errorMessage":"Class not found: org.example.aws.functions.BookPriceCalculatorLambda","errorType":"java.lang.ClassNotFoundException"}
+            }
         });
     }
 
